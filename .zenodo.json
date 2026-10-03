@@ -1,0 +1,15 @@
+{
+  "title": "Lean formalization of the random 3-SAT upper bound 4.268",
+  "description": "Reproducible Lean 4 formalization and independent rational certificate for the random 3-SAT upper bound 4.268, by Fedor Vorobyev. The software archive excludes the manuscript, which has separate copyright terms. Lean and mathlib are pinned; the endpoint and transitive theorem axioms are audited.",
+  "creators": [{"name": "Vorobyev, Fedor"}],
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "version": "1.0.0",
+  "keywords": ["random 3-SAT", "Lean", "formal verification", "probability"],
+  "related_identifiers": [{
+    "identifier": "https://github.com/yamelton/sat-upper-4268",
+    "relation": "isSupplementTo",
+    "scheme": "url"
+  }]
+}

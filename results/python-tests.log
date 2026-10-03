@@ -1,0 +1,15 @@
+test_grid_exponentials_against_high_precision (test_richer_witness.RicherWitnessChecks.test_grid_exponentials_against_high_precision) ... ok
+test_heterogeneous_local_estimate_by_field_enumeration (test_richer_witness.RicherWitnessChecks.test_heterogeneous_local_estimate_by_field_enumeration) ... ok
+test_inadmissible_survey_is_rejected (test_richer_witness.RicherWitnessChecks.test_inadmissible_survey_is_rejected) ... ok
+test_saved_witness_against_direct_binomial_sums (test_richer_witness.RicherWitnessChecks.test_saved_witness_against_direct_binomial_sums) ... ok
+test_binomial_computation_matches_zero_conflict_limit (test_witness.WitnessChecks.test_binomial_computation_matches_zero_conflict_limit) ... ok
+test_interpolation_derivative_on_arbitrary_joint_measures (test_witness.WitnessChecks.test_interpolation_derivative_on_arbitrary_joint_measures) ... ok
+test_local_finite_temperature_bounds (test_witness.WitnessChecks.test_local_finite_temperature_bounds) ... ok
+test_rational_enclosures_against_high_precision (test_witness.WitnessChecks.test_rational_enclosures_against_high_precision) ... ok
+test_saved_certificate_against_independent_sum (test_witness.WitnessChecks.test_saved_certificate_against_independent_sum) ... ok
+test_warning_union_by_enumeration (test_witness.WitnessChecks.test_warning_union_by_enumeration) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.230s
+
+OK

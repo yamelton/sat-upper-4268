@@ -1,0 +1,5 @@
+Build completed successfully (2646 jobs).
+Auditing 233 theorem dependencies (shared traversal)...
+233 theorem dependencies audited: only standard logical axioms.
+The unconditional 4.268 threshold upper-bound theorem and its exact endpoint are verified.
+Report: results/lean_verification.json

@@ -1,0 +1,20 @@
+Random 3-SAT upper bound 4.268
+Copyright 2026 Fedor Vorobyev
+
+Original software in lean/, src/, tests/, and scripts/ is provided under
+the Apache License, Version 2.0, reproduced in LICENSE. Software documentation
+and machine-readable verification records are included in this grant.
+
+The manuscript in paper/ and its compiled PDF are EXCLUDED from this software
+license. Copyright 2026 Fedor Vorobyev. All rights reserved, except for any
+distribution rights expressly granted to arXiv for an uploaded version.
+The source narrative publication/source-proof.md is also excluded.
+
+The development uses Lean and mathlib as separately licensed dependencies.
+Their existing copyright and license notices remain applicable. Dependencies
+and toolchain binaries are not included in the source release. In particular,
+mathlib is distributed under Apache-2.0 and retains its contributors' credits.
+
+The interpolation strategy is attributed to the works of Franz and Leone,
+Panchenko and Talagrand, and Lelarge and Oulamara, as explained in the paper.
+These citations are mathematical attribution, not additional Lean axioms.

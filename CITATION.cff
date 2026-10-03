@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "Please cite this software release and the accompanying paper by Fedor Vorobyev."
+type: software
+title: "Lean formalization of the random 3-SAT upper bound 4.268"
+authors:
+  - family-names: Vorobyev
+    given-names: Fedor
+    email: fedorvorobev@gmail.com
+version: 1.0.0
+license: Apache-2.0
+repository-code: "https://github.com/yamelton/sat-upper-4268"
+keywords:
+  - random 3-SAT
+  - probability
+  - Lean
+  - formal verification

@@ -1,0 +1,624 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,longtable,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\ind}{\mathbf{1}}
+\newcommand{\Pois}{\operatorname{Poisson}}
+\newcommand{\Bin}{\operatorname{Binomial}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\en}{\mathcal{E}}
+\newcommand{\code}[1]{\texttt{\small #1}}
+\title{A Lean-verified upper bound of 4.268 for random 3-SAT}
+\author{Fedor Vorobyev\\\small Independent researcher\\
+  \small\href{mailto:fedorvorobev@gmail.com}{fedorvorobev@gmail.com}}
+\date{October 2026}
+\hypersetup{pdftitle={A Lean-verified upper bound of 4.268 for random 3-SAT},
+  pdfauthor={Fedor Vorobyev}}
+\begin{document}
+\maketitle
+\begin{abstract}
+We prove that a uniformly random signed 3-CNF formula with
+$\lfloor 4.268n\rfloor$ independent clauses on $n$ variables is
+unsatisfiable with probability tending to one. Each clause contains three
+distinct variables; repeated clauses are allowed. The proof specializes
+the clause/site interpolation method to the minimum number of violated
+constraints. Integer costs give an exact insertion identity, and a
+nonnegative cubic remainder yields the local comparison. Finite binomial
+replacement followed by Poisson averaging compares the endpoints without
+differentiating an interpolation parameter. A three-point law of Boolean
+warning rates and 128 moments reduce the quantitative claim to a finite
+rational certificate. We formalize the complete argument in Lean 4 with
+mathlib, including the analytic enclosures, the numerical inequality,
+de-Poissonization, concentration, and transfer to distinct-variable clauses.
+The formal theorem uses only the standard logical axioms of Lean; no
+external numerical oracle is assumed.
+\end{abstract}
+
+\section{Introduction}
+The random 3-SAT problem asks how the satisfiability of a random Boolean
+formula depends on its number of clauses per variable. We give a complete
+proof at the explicit density
+\[
+  \alpha=\frac{1067}{250}=4.268.
+\]
+The numerical value is accompanied by a finite rational certificate and a
+Lean formalization of its implication for the random formula model.
+
+For $n\geq3$, a legal clause is obtained by choosing an ordered triple of
+distinct variables uniformly and independently choosing three fair
+Boolean signs. A sign records the value falsifying the corresponding
+literal. Clauses are sampled independently, so repetitions of an entire
+clause are permitted. Ordering the variables changes no probability of
+interest: every unordered signed clause has exactly six ordered
+representations.
+
+\begin{theorem}\label{thm:main}
+Let $F_n$ consist of $\lfloor\alpha n\rfloor$ independent legal clauses
+on $n$ Boolean variables, where $\alpha=1067/250$. Then
+\[
+  \lim_{n\to\infty}\Prob(F_n\text{ is satisfiable})=0.
+\]
+\end{theorem}
+
+This statement neither assumes the existence of a limiting satisfiability
+threshold nor identifies its exact value. It is a probabilistic statement
+about random formulas, not an algorithm for deciding arbitrary instances.
+
+\paragraph{Context and contribution.}
+Franz and Leone~\cite{FL} introduced replica bounds for diluted systems
+using a clause/site Poisson interpolation. Panchenko and
+Talagrand~\cite{PT} developed a broader formulation of such bounds, and
+Lelarge and Oulamara~\cite{LO} gave a combinatorial interpolation for
+general degree distributions. The present proof follows this line of
+comparison arguments. It uses integer minimum costs to obtain exact
+insertion identities, and proves the required cubic sign for nonnegative
+features directly. This qualification matters: the cited preprint of
+Franz--Leone makes additional overlap assumptions in its odd-arity
+discussion. We do not invoke that discussion as an unconditional 3-SAT
+theorem.
+
+Mertens, M\'ezard, and Zecchina~\cite{MMZ} studied threshold predictions
+from the cavity equations. A distinct combinatorial upper-bound argument
+of D\'iaz, Kirousis, Mitsche, and P\'erez-Gim\'enez~\cite{DKMP} proves
+unsatisfiability at density $4.4898$. Our purpose here is to establish the
+stated $4.268$ bound by a self-contained argument and an explicit,
+kernel-checked calculation. We make no priority claim for the interpolation
+method or a claim to have optimized the warning law.
+
+\paragraph{Proof outline.}
+We first sample the three variable positions with replacement. Write
+$\en(F)$ for the minimum number of violated clauses. A comparison with
+random unit constraints bounds the mean of $-y\en(F)$ in a Poisson clause
+model. A rational certificate makes the bound negative for one fixed,
+sufficiently large $y>0$. De-Poissonization then gives
+$\E\en(F)\geq cn$ for some $c>0$. The bounded effect of one clause implies
+$\Var(\en(F))\leq\alpha n$, so Chebyshev's inequality bounds the
+satisfiability probability by $O(1/n)$. Conditioning every clause to have
+distinct variables costs only a constant factor.
+
+\section{Integer insertion and the comparison model}
+\subsection{An exact insertion identity}
+Let $\Omega$ be a nonempty finite set and let $H:\Omega\to\mathbb{N}$.
+Write $\en(H)=\min_{\sigma\in\Omega}H(\sigma)$.
+
+\begin{lemma}\label{lem:integer}
+For every predicate $P$ on $\Omega$,
+\begin{equation}\label{eq:integer}
+ \en(H+\ind_P)=\en(H)+
+ \ind\{P(\sigma)\text{ holds for every minimizer of }H\}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+If some minimizer does not satisfy $P$, it still has cost $\en(H)$ after
+insertion, and no cost decreases. Otherwise every old minimizer costs
+$\en(H)+1$. Each other assignment already costs at least $\en(H)+1$,
+because costs are integers. An old minimizer attains this new lower bound.
+\end{proof}
+
+For $y>0$ and $q=1-e^{-y}$, the exponential form of this identity is
+\begin{equation}\label{eq:expinsert}
+ e^{-y\en(H+\ind_P)}=e^{-y\en(H)}(1-qB_P),
+\end{equation}
+where $B_P$ is the indicator on the right-hand side of
+\eqref{eq:integer}.
+
+\subsection{Rows, fields, and their order of averaging}
+Fix $n\geq1$. A seed $x=(i,J,R)$ consists of a uniform variable
+$i\in\{1,\ldots,n\}$, a fair Boolean falsifying sign $J$, and an
+independent rate $R$ with law
+\begin{equation}\label{eq:law}
+ \Prob(R=1/20)=1/4,\qquad
+ \Prob(R=2/5)=1/2,\qquad
+ \Prob(R=17/20)=1/4.
+\end{equation}
+A row consists of three independent seeds $x_1,x_2,x_3$.
+All rows are independent. Given a row, sample independent Boolean
+warnings $W_2,W_3$ with success probabilities $R_2,R_3$.
+There are two kinds of constraint on $\sigma\in\{0,1\}^n$:
+\begin{align*}
+ C_x(\sigma)&=\ind\{\sigma_{i_1}=J_1,
+                             \sigma_{i_2}=J_2,\sigma_{i_3}=J_3\},\\
+ S_{x,W}(\sigma)&=\ind\{\sigma_{i_1}=J_1\}W_2W_3.
+\end{align*}
+The first is a clause with replacement in its variable positions; the
+second is an active unit constraint when both warnings occur. Unused
+coordinates let both constraints share the same row law.
+
+For $K$ clauses and $L$ sites, hold all rows fixed and let $a$ denote the
+array of site warnings. Let $H_a$ be the sum of the constraint costs and
+$E_a=\en(H_a)$. Define
+\begin{equation}\label{eq:functional}
+ Z_y=\E_a e^{-yE_a},\qquad \Phi_y=\log Z_y,\qquad
+ f(K,L)=\E_{\rm rows}\Phi_y.
+\end{equation}
+Thus the warning average is taken before the logarithm, and the row
+average after it. Conditional on the rows, all warnings are independent.
+All spaces at fixed $K,L$ are finite. Since $0\leq E_a\leq K+L$,
+\begin{equation}\label{eq:growth}
+ -y(K+L)\leq\Phi_y\leq0.
+\end{equation}
+Inserting one clause or site changes $\Phi_y$ by an amount in $[-y,0]$:
+under each warning realization the minimum increases by either zero or
+one, and averaging preserves the resulting exponential bounds.
+The same increment bounds hold for $f$.
+
+\section{The local cubic inequality}
+At fixed existing rows, tilt the existing warning law by
+\[
+ \mu_y(a)=\frac{\Prob(a)e^{-yE_a}}{Z_y}.
+\]
+For a fresh seed $x=(i,J,R)$ define
+\[
+ b(x,a)=\ind\{\sigma_i=J\text{ for every minimizer of }H_a\},
+ \qquad r(x,a)=R.
+\]
+Both take values in $[0,1]$. Let $\langle\cdot\rangle$ denote expectation
+with respect to $\mu_y$.
+
+A clause is violated by every minimizer exactly when each of its three
+literals is falsified by every minimizer. This is the elementary
+commutation of the two universal quantifiers over minimizers and literal
+positions; it remains valid when variable positions repeat. Consequently,
+\eqref{eq:expinsert} gives the clause increment
+\begin{equation}\label{eq:clause}
+ \Delta_C\Phi_y=\log\bigl(1-q\langle b(x_1,a)b(x_2,a)b(x_3,a)\rangle\bigr).
+\end{equation}
+For a site, first average its two fresh warnings, which are independent
+of the existing warning array. Their product has mean $R_2R_3$, hence
+\begin{equation}\label{eq:site}
+ \Delta_S\Phi_y=\log\bigl(1-q\langle b(x_1,a)R_2R_3\rangle\bigr).
+\end{equation}
+Define the correction
+\begin{equation}\label{eq:dy}
+ d_y=\E\log(1-qR_1R_2R_3),
+\end{equation}
+where the rates are independent copies of~\eqref{eq:law}.
+
+\begin{lemma}\label{lem:cubic}
+Averaging the fresh row gives
+\begin{equation}\label{eq:local}
+ \E_x\Delta_C\Phi_y-3\E_x\Delta_S\Phi_y+2d_y\leq0.
+\end{equation}
+\end{lemma}
+\begin{proof}
+For $0\leq z\leq1$,
+$\log(1-qz)=-\sum_{h\geq1}q^hz^h/h$. The absolute sum is bounded by
+$\sum_{h\geq1}q^h/h=y$, uniformly in $z$, so it may be averaged termwise.
+For a fixed $h$, sample independent replicas $a_1,\ldots,a_h$ from the
+same law $\mu_y$, and set
+\[
+ B_h=\E_x\prod_{t=1}^h b(x,a_t),\qquad C_h=\E R^h.
+\]
+The seed $x$ is shared across the $h$ factors in $B_h$. Independence of
+the three fresh seeds and finite Fubini give, respectively, the replica
+averages of $B_h^3$, $B_hC_h^2$, and $C_h^3$ for the three moments in
+\eqref{eq:local}. Their combination is nonnegative, because
+\[
+ B_h^3-3B_hC_h^2+2C_h^3=(B_h-C_h)^2(B_h+2C_h)\geq0.
+\]
+Multiplication by the nonpositive logarithmic coefficients proves the claim.
+\end{proof}
+
+Averaging the existing rows in~\eqref{eq:local} yields
+\begin{equation}\label{eq:difference}
+ f(K+1,L)-3f(K,L+1)+2f(K,L)+2d_y\leq0.
+\end{equation}
+The cubic sign here uses only nonnegative features; no overlap hypothesis
+is needed. It is the cubic instance of the polynomial remainder in
+Lelarge--Oulamara~\cite[condition (4), equation (30)]{LO}.
+
+\section{Finite replacement and Poisson endpoints}
+The next comparison is elementary and independent of the SAT model.
+
+\begin{lemma}\label{lem:comparison}
+Suppose $f:\mathbb{N}^2\to\mathbb{R}$ has uniformly bounded increments
+in each coordinate and satisfies~\eqref{eq:difference} with a constant
+$d$ in place of $d_y$. For every $a\geq0$,
+\begin{equation}\label{eq:comparison}
+ \E_{K\sim\Pois(a)}f(K,0)
+ \leq\E_{L\sim\Pois(3a)}f(0,L)-2ad.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Define
+\[
+ T_N(K,L)=\sum_{j=0}^N\binom Nj2^{N-j}f(K+j,L).
+\]
+Pascal's identity gives
+$T_{N+1}(K,L)=T_N(K+1,L)+2T_N(K,L)$. Induction implies
+\begin{equation}\label{eq:binomial}
+ T_N(K,L)\leq3^N\bigl(f(K,L+N)-2Nd/3\bigr).
+\end{equation}
+Indeed, the case $N=0$ is equality. Applying the induction hypothesis to
+both summands of $T_{N+1}$ gives an upper bound
+\[
+ 3^N\bigl(f(K+1,L+N)+2f(K,L+N)-2Nd\bigr).
+\]
+The assumed local inequality at $(K,L+N)$ bounds this by
+$3^{N+1}(f(K,L+N+1)-2(N+1)d/3)$.
+
+At $K=L=0$, divide~\eqref{eq:binomial} by $3^N$ and average
+$N\sim\Pois(3a)$. Conditional on $N$, the left side averages
+$f(J,0)$ with $J\sim\Bin(N,1/3)$. For $N=j+\ell$, its weight is
+\[
+ e^{-3a}\frac{(3a)^N}{N!}\binom Nj(1/3)^j(2/3)^\ell
+ =e^{-3a}\frac{a^j}{j!}\frac{(2a)^\ell}{\ell!}.
+\]
+Summing $\ell$ gives the $\Pois(a)$ weight of $j$, whereas
+$\E N=3a$. Bounded increments give at most linear growth, justifying
+all rearrangements by absolute convergence. The case $a=0$ is immediate.
+\end{proof}
+
+Let $F^{\rm rep}_K$ have $K$ clauses whose variable positions are sampled
+with replacement. At the clause-only endpoint the inner warning average
+disappears, so $f(K,0)=-y\E\en(F^{\rm rep}_K)$. With $a=\alpha n$,
+Lemma~\ref{lem:comparison} becomes
+\begin{equation}\label{eq:poissonenergy}
+ -\frac yn\E\en(F^{\rm rep}_{\Pois(\alpha n)})
+ \leq\frac1n\E_{L\sim\Pois(3\alpha n)}f(0,L)-2\alpha d_y.
+\end{equation}
+Here a Poisson subscript means that the count is sampled independently
+and then the indicated number of independent clauses is sampled.
+
+\section{The site endpoint and its moments}
+\subsection{Conflicting warnings}
+Hold the site rows fixed. For each variable $v$ and sign $s\in\{0,1\}$,
+let $N_{v,s}$ count sites rooted at $(v,s)$ whose two warnings are active.
+Every assignment violates at least one site at a variable where both
+$N_{v,0}$ and $N_{v,1}$ are positive. Therefore the minimum site energy
+is at least the number of such variables.
+
+Put
+\[
+ A_v=\prod_{\text{sites rooted at }(v,0)}(1-R_2R_3),\quad
+ B_v=\prod_{\text{sites rooted at }(v,1)}(1-R_2R_3),\quad
+ G_v=A_v+B_v-A_vB_v.
+\]
+An empty product is one. The two sign groups use disjoint warning
+coordinates, so $G_v$ is the conditional probability that at least one
+of their active-warning counts is zero. Different variables also use
+disjoint coordinates. Writing $\delta=e^{-y}$, the energy lower bound and
+this conditional independence imply
+\begin{equation}\label{eq:vertex}
+ \Phi_y\leq\sum_{v=1}^n\log\bigl(G_v+(1-G_v)\delta\bigr).
+\end{equation}
+This is an inequality: counting conflicting variables need not give the
+exact minimum energy.
+
+\begin{lemma}\label{lem:truncate}
+For $x\in[0,1]$, $\delta\in(0,1]$, and an integer $T\geq1$,
+\begin{equation}\label{eq:truncate}
+ \log(1-(1-\delta)x)\leq-\sum_{k=1}^T\frac{x^k}{k}+T\delta.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Truncating the logarithmic series gives an upper bound
+$-\sum_{k=1}^T(1-\delta)^kx^k/k$. Bernoulli's inequality gives
+$(1-\delta)^k\geq1-k\delta$, and $x^k\leq1$ bounds the total correction
+by $T\delta$. This also covers $x=1$ and $\delta=1$.
+\end{proof}
+
+\subsection{Mixed Poisson moments}
+Let $L\sim\Pois(3\alpha n)$ and fix a variable $v$. Define
+\begin{equation}\label{eq:moments}
+ \nu_j=\E(1-RR')^j,\qquad
+ M_j=\exp\bigl((3\alpha/2)(\nu_j-1)\bigr),\qquad
+ \mu_k=\sum_{j=0}^k(-1)^j\binom kj M_j.
+\end{equation}
+All rate copies in the same expectation are independent. For independent
+rows $X_i$ and a function $0\leq h\leq1$, conditioning on $L$ gives
+\[
+ \E\prod_{i=1}^L h(X_i)
+ =\exp\bigl(3\alpha n(\E h(X)-1)\bigr).
+\]
+A row is rooted at either given sign of $v$ with probability $1/(2n)$,
+and cannot belong to both sign groups. Its contribution to $A_v^jB_v^\ell$
+therefore has mean
+$1+(\nu_j-1)/(2n)+(\nu_\ell-1)/(2n)$. Hence
+\begin{equation}\label{eq:mixed}
+ \E[A_v^jB_v^\ell]
+ =\exp\bigl((3\alpha/2)(\nu_j+\nu_\ell-2)\bigr)=M_jM_\ell.
+\end{equation}
+Finite binomial expansion now yields
+\begin{equation}\label{eq:musquare}
+ \E\bigl[((1-A_v)(1-B_v))^k\bigr]=\mu_k^2.
+\end{equation}
+In particular $\mu_k=\E(1-A_v)^k\geq0$.
+
+Apply Lemma~\ref{lem:truncate} with $x=(1-A_v)(1-B_v)=1-G_v$,
+then average~\eqref{eq:vertex} and use~\eqref{eq:musquare}. We obtain
+\begin{equation}\label{eq:sitebound}
+ \frac1n\E_{L\sim\Pois(3\alpha n)} f(0,L)
+ \leq-\sum_{k=1}^T\frac{\mu_k^2}{k}+Te^{-y}.
+\end{equation}
+Only a finite polynomial has been integrated. In particular, no
+integrability claim for $\log G_v$ or $1/G_v$ is needed.
+
+Since $q\leq1$ and $R_1R_2R_3<1$, equation~\eqref{eq:dy} implies
+$d_y\geq\E\log(1-R_1R_2R_3)$. Define
+\begin{equation}\label{eq:psi}
+ \Psi_T=-\sum_{k=1}^T\frac{\mu_k^2}{k}
+             -2\alpha\E\log(1-R_1R_2R_3).
+\end{equation}
+Combining~\eqref{eq:poissonenergy} and~\eqref{eq:sitebound} proves
+\begin{proposition}\label{prop:energy}
+For every $n\geq1$, $y>0$, and $T\geq1$,
+\begin{equation}\label{eq:energybound}
+ -\frac yn\E\en(F^{\rm rep}_{\Pois(\alpha n)})\leq\Psi_T+Te^{-y}.
+\end{equation}
+\end{proposition}
+
+\section{The rational certificate}\label{sec:certificate}
+For the law~\eqref{eq:law} and $T=128$, the numerical statement is
+\begin{equation}\label{eq:negative}
+ \Psi_{128}\leq-\frac1{100000}=-\varepsilon.
+\end{equation}
+We specify a rational calculation proving this inequality. The displayed
+decimal approximations below are explanatory only.
+
+Represent the rate law by four equally likely labels
+\[
+ (r_0,r_1,r_2,r_3)=(1/20,17/20,2/5,2/5).
+\]
+Then $\nu_j=\frac1{16}\sum_{i,\ell=0}^3(1-r_ir_\ell)^j$ is rational.
+Put $x_j=(3\alpha/2)(\nu_j-1)$ for $0\leq j\leq128$.
+
+\subsection{Exponential enclosures}
+For an integer scale $s>0$, define
+$D_s(z)=\lfloor sz\rfloor/s$ and $U_s(z)=-D_s(-z)$. Define intervals
+recursively by
+\begin{align*}
+ I_0(x)&=[\max(0,1+x),\,1/(1-x)],\\
+ I_{t+1}(x)&=[D_s(l^2),U_s(u^2)],
+       \qquad [l,u]=I_t(x/2).
+\end{align*}
+For $x<2^t$, the interval $I_t(x)$ encloses $e^x$ and has nonnegative
+endpoints. At $t=0$, use $1+x\leq e^x$ and
+$1-x\leq e^{-x}$; the latter can be inverted since $x<1$.
+Induction uses $e^x=(e^{x/2})^2$ and outward rounding.
+
+Compute $I_{160}(x_j)$ on the grid $s=2^{320}$, then round its endpoints
+outward on the grid $2^{160}$ to obtain $[l_j,u_j]$. The domain condition
+holds because $x_j\leq0$. For $c_{kj}=(-1)^j\binom kj$, put
+\[
+ L_k=\sum_{j=0}^k c_{kj}
+ \begin{cases}l_j,&c_{kj}\geq0,\\u_j,&c_{kj}<0,\end{cases}
+ \qquad V=-\sum_{k=1}^{128}\frac{\max(0,L_k)^2}{k}.
+\]
+Signed interval arithmetic gives $L_k\leq\mu_k$. Since $\mu_k\geq0$,
+$\max(0,L_k)^2\leq\mu_k^2$, so $V$ bounds the vertex term from above.
+The clamp before squaring prevents a negative interval endpoint from
+giving an invalid lower bound on a square.
+
+\subsection{Logarithmic enclosures and exact arithmetic}
+For $0\leq z<1$, let
+\[
+ \lambda(z)=-\sum_{h=1}^{32}\frac{z^h}{h}-\frac{z^{33}}{1-z}.
+\]
+Bounding the remaining logarithmic-series tail by a geometric series
+proves $\lambda(z)\leq\log(1-z)$. Thus
+\[
+ W=-\frac{2\alpha}{64}\sum_{i,j,\ell=0}^3
+                   \lambda(r_ir_jr_\ell)
+\]
+is an upper bound on the edge term. The resulting entirely
+rational inequality is
+\begin{equation}\label{eq:rational}
+ V+W\leq-1/100000.
+\end{equation}
+Lean computes and proves~\eqref{eq:rational} by \code{decide +kernel},
+and the analytic enclosure lemmas then imply~\eqref{eq:negative}.
+The exponential intervals are computed within Lean from their recurrence;
+no table supplied by an external program is a premise of the theorem.
+
+An independent Python implementation uses rational Taylor enclosures
+for the exponential and a different logarithm enclosure. Its upper
+bounds, rounded for display, are
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Contribution & Independent upper bound \\
+\midrule
+Vertex & $-0.7611927541550103$\\
+Edge & $+0.7611815516097719$\\
+Sum & $-0.000011202545238429759$\\
+\bottomrule
+\end{tabular}
+\end{center}
+These numbers cross-check the calculation; they are not inputs to Lean
+and are not claimed to be exact values of the real expression $\Psi_{128}$.
+
+\section{Fixed clause count, concentration, and legal clauses}
+Choose one finite $y>0$ such that $128e^{-y}\leq\varepsilon/4$, and keep
+it fixed as $n$ grows. Let $M=\lfloor\alpha n\rfloor$ and
+$N\sim\Pois(\alpha n)$. Coupling formulas by prefixes of the same
+independent clause sequence and using the one-clause energy bound gives
+\begin{align}
+ \bigl|\E\en(F^{\rm rep}_N)-\E\en(F^{\rm rep}_M)\bigr|
+ &\leq\E|N-M|\nonumber\\
+ &\leq\sqrt{\E(N-M)^2}\leq\sqrt{\alpha n+1}.\label{eq:depois}
+\end{align}
+Here $\E(N-M)^2=\alpha n+(\alpha n-M)^2$. Equations
+\eqref{eq:energybound}, \eqref{eq:negative}, and~\eqref{eq:depois} yield
+\[
+ -\frac yn\E\en(F^{\rm rep}_M)
+ \leq-\varepsilon+128e^{-y}+\frac yn\sqrt{\alpha n+1}.
+\]
+Eventually the last term is at most $\varepsilon/4$, so, for
+$c=\varepsilon/(2y)>0$,
+\begin{equation}\label{eq:linear}
+ \E\en(F^{\rm rep}_M)\geq cn
+\end{equation}
+for all sufficiently large $n$. This fixes $y$ before taking $n\to\infty$;
+there is no exchange of two limits.
+
+Replacing one clause changes every assignment's violation count by at
+most one, hence changes its minimum by at most one. To bound the variance,
+reveal the $M$ clauses one at a time and use the Doob martingale of
+$\en(F^{\rm rep}_M)$. Conditional on the preceding clauses, the
+conditional expectations corresponding to different values of the next
+clause differ by at most one: couple all unrevealed clauses identically.
+Each martingale increment therefore has absolute value at most one.
+Its conditional mean is zero, so orthogonality gives
+\begin{equation}\label{eq:variance}
+ \Var(\en(F^{\rm rep}_M))\leq M\leq\alpha n.
+\end{equation}
+The formal proof uses the equivalent finite-product variance decomposition.
+Chebyshev's inequality and~\eqref{eq:linear} imply eventually
+\begin{equation}\label{eq:chebyshev}
+ \Prob(\en(F^{\rm rep}_M)=0)\leq\frac{\alpha}{c^2n}.
+\end{equation}
+
+Let $A$ be the event that each of the $M$ clauses has distinct variable
+positions. Conditional on $A$, clauses are independent uniform legal
+clauses and their signs remain independent and fair. For $n\geq6$,
+\begin{equation}\label{eq:conditioning}
+ \Prob(A)^{-1}=
+ \left(\frac{n^2}{(n-1)(n-2)}\right)^M
+ \leq e^{6M/n}\leq e^{6\alpha}.
+\end{equation}
+Indeed, for $r=n^2/((n-1)(n-2))$, use
+$\log r\leq r-1\leq6/n$; the latter inequality reduces to
+$3n^2-16n+12\geq0$, valid for $n\geq6$.
+Since $\Prob(B\mid A)\leq\Prob(B)/\Prob(A)$ for any event $B$,
+\eqref{eq:chebyshev} and~\eqref{eq:conditioning} give
+\[
+ \Prob(F_n\text{ is satisfiable})
+ \leq e^{6\alpha}\frac{\alpha}{c^2n}\longrightarrow0.
+\]
+This proves Theorem~\ref{thm:main}. The conditioning constant is deliberately
+coarse; the argument supplies an asymptotic conclusion, not a useful
+small-instance estimate.
+
+\section{Relation to the partition-moment formulation}
+For the same finite Hamiltonian $H_a$ and field law on both sides, put
+$Z_\beta(a)=\sum_\sigma e^{-\beta H_a(\sigma)}$. For $\beta\geq0$,
+\[
+ e^{-\beta E_a}\leq Z_\beta(a)\leq2^n e^{-\beta E_a}.
+\]
+Raise to a power $m\geq0$, average over the fields, and take logarithms:
+\begin{equation}\label{eq:bridge}
+ \Phi_{m\beta}\leq\log\E_a[Z_\beta(a)^m]
+                  \leq\Phi_{m\beta}+mn\log2.
+\end{equation}
+Thus at fixed $m\beta=y$ the normalized difference is at most $m\log2$.
+This finite-system sandwich, also formalized in Lean, relates our
+functional to a nested partition moment of the form in
+Franz--Leone~\cite[equation (45)]{FL}.
+
+The comparison in Section~4 retains the clause/site balance of their
+Poisson interpolation~\cite[equations (51)--(54)]{FL}, but proves it
+using finite replacement. Equation~\eqref{eq:bridge} uses an identical
+fixed field law on its two sides; it does not identify that law with the
+reweighted measure in their equation (46). Nor do we claim the exact
+integer-cost implementation appears in that paper. The direct insertion
+identity is sufficient here, at the cost of restricting the argument to
+integer unit costs rather than a general finite-temperature model.
+
+\section{Formalization and reproducibility}\label{sec:lean}
+The formalization uses Lean 4.24.0 and mathlib~\cite{mathlib}, pinned to
+the revision
+\begin{center}
+\code{f897ebcf72cd16f89ab4577d0c826cd14afaafc7}.
+\end{center}
+The public
+model expresses probability as the ratio of two finite cardinalities.
+Clauses are triples with an injective variable map and three Boolean
+falsifying signs; a formula is an ordered list of independent clauses.
+The exact expanded endpoint is
+\begin{verbatim}
+Filter.Tendsto
+  (fun n : Nat => SatUpper.satisfiabilityProbability n (1067*n/250))
+  Filter.atTop (nhds 0)
+\end{verbatim}
+Natural-number division gives exactly $\lfloor1067n/250\rfloor$.
+For $n<3$, the legal clause set is empty and the definition uses Lean's
+division-by-zero convention; these finitely many indices do not affect
+the limit. The final theorem has no undischarged interpolation, numerical,
+or concentration hypotheses.
+
+\begin{center}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{.42\textwidth}>{\raggedright\arraybackslash}p{.50\textwidth}}
+\toprule
+Mathematical step & Modules below \code{lean/SatUpper/}\\
+\midrule
+Model and final theorem & \code{Model}, \code{Threshold}\\
+Integer insertion & \code{Ground/Minimum}, \code{Ground/Finite}\\
+Insertion and cubic sign & \code{Ground/Insertion}, \code{LogInsertion}, \code{ReplicaCubic}\\
+Finite replacement and Poisson average & \code{BinomialPoisson}, \code{PoissonExpectation}, \code{Ground/Comparison}\\
+Site bound and mixed moments & \code{Ground/Site}, \code{Ground/SiteBound}, \code{PoissonPair}\\
+Rational certificate & \code{GridExponential}, \code{NumericalMoments}, \code{NumericalLogs}, \code{NumericalEnclosure}\\
+Fixed count and asymptotics & \code{ReplacementPoissonMean}, \code{ModelTransfer}, \code{Obligations}\\
+Variance and conditioning & \code{FiniteVariance}, \code{VarianceControl}, \code{LegalConditioning}\\
+Partition-moment sandwich & \code{Ground/Minimum}, \code{Ground/Finite}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The audit enumerates the project theorems, asks Lean for their transitive
+axiom dependencies, and separately checks the expanded endpoint above.
+It allows only \code{propext}, \code{Classical.choice}, and
+\code{Quot.sound}. It rejects proof placeholders and additional
+evaluation axioms. This is a dependency audit using Lean's environment,
+not a separate proof checker: mathematical checking is performed by the
+Lean kernel. The definitions of the model and the correspondence to the
+paper still require human inspection.
+
+With the pinned toolchain installed, the proof and audit are reproduced
+from the repository root by
+\begin{verbatim}
+sh lean/run.sh exe cache get
+python3 lean/verify.py
+python3 lean/test_verify.py
+\end{verbatim}
+The independent certificate uses only the Python standard library:
+\begin{verbatim}
+python3 src/richer_certificate.py --alpha 4.268 --cutoff 128 \
+  --surveys .05,.85,.5 .4,.4,.5 --output certificate.json
+\end{verbatim}
+The repository additionally includes numerical cross-checks, source
+provenance, and instructions for rebuilding the paper and release bundle.
+\input{availability.tex}
+
+\paragraph{Acknowledgments and tools.}
+The development relies on the Lean and mathlib communities and credits
+the interpolation methods cited above. AI assistance was used in preparing
+the manuscript and publication materials. The author is responsible for
+the mathematical claims and the final text.
+
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
