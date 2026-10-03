@@ -10,14 +10,15 @@
   Mathematical Sciences; Faculty of Computational Mathematics and Cybernetics,
   Lomonosov Moscow State University. Do not add a current MSU or Yandex affiliation.
 - GitHub: `yamelton`, explicitly authorized by the author for this publication.
-- Primary category: **math.PR**. Requested cross-list: **cs.DM**.
+- Category: **math.PR** or **cs.DM** primary, with the other as a requested
+  cross-list. Final choice awaits confirmation of available endorsement.
 - Manuscript license: **arXiv.org perpetual, non-exclusive license 1.0**.
 
 ## arXiv
 
 1. [Register](https://arxiv.org/user/register) and verify your email. Keep
    passwords and email verification steps in your browser.
-2. Start a new submission as an author and select math.PR. Follow the
+2. Start a new submission as an author and select the agreed primary category. Follow the
    [endorsement instructions](https://info.arxiv.org/help/endorsement.html)
    to obtain your request link/code. A colleague must be eligible in the
    relevant endorsement domain; eligibility is not implied by a job title.
@@ -38,17 +39,13 @@ privately; never commit passwords, tokens, or the endorsement code.
 
 ## Software archive and DOI
 
-Sign in to [Zenodo](https://zenodo.org) using the authorized GitHub account.
-For this mixed software/manuscript repository, upload the **software-only**
-ZIP from the release manually rather than applying one software license to
-an automatic archive containing the paper.
-
-Use resource type Software, version 1.0.0, creator **Vorobyev, Fedor**,
-license **Apache License 2.0**, and the description in `.zenodo.json`.
-Include the exact release URL as a related resource. Reserve a DOI in the
-draft if available, inspect the files and metadata, then publish the software
-record. Return the record URL/DOI so it can be added to the paper and citation
-metadata. A reserved DOI is not yet a published archive.
+Software release 1.0.0 is published on
+[Zenodo](https://doi.org/10.5281/zenodo.23120101), under Apache License 2.0,
+with creator **Vorobyev, Fedor**. The uploaded software-only ZIP excludes the
+manuscript. Its MD5 is `9b4706627e5f9bb35fd985bd1a653c18`.
+The Zenodo account uses independent email login, without a GitHub connection.
+Preserve the published software archive unchanged; later manuscript and citation
+metadata updates do not change the archived 1.0.0 software.
 
 An ORCID can be created at [orcid.org/register](https://orcid.org/register)
 and linked to both records; it is optional for the prepared artifact.
@@ -66,7 +63,7 @@ rational certificate.
 The paper and code are available at:
 https://github.com/yamelton/sat-upper-4268/releases
 
-Would you be willing to endorse my first submission in math.PR, if you are
+Would you be willing to endorse my first submission in math.PR or cs.DM, if you are
 eligible in that domain? I can forward arXiv's endorsement request email.
 
 Thank you,

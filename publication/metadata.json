@@ -5,10 +5,11 @@
   ],
   "contact_email": "fedorvorobev@gmail.com",
   "affiliation": "Independent",
-  "primary_category": "math.PR",
-  "cross_list": [
-    "cs.DM"
-  ],
+  "primary_category": null,
+  "cross_list": [],
+  "category_candidates": ["math.PR", "cs.DM"],
+  "category_status": "Choose primary and cross-list after confirming available endorsement.",
+  "software_doi": "10.5281/zenodo.23120101",
   "license": "arXiv.org perpetual, non-exclusive license 1.0",
   "abstract": "We prove that a uniformly random signed 3-CNF formula with $\\lfloor 4.268n\\rfloor$ independent clauses on $n$ variables is unsatisfiable with probability tending to one. Each clause contains three distinct variables; repeated clauses are allowed. The proof specializes the clause/site interpolation method to the minimum number of violated constraints. Integer costs give an exact insertion identity, and a nonnegative cubic remainder yields the local comparison. Finite binomial replacement followed by Poisson averaging compares the endpoints without differentiating an interpolation parameter. A three-point law of Boolean warning rates and 128 moments reduce the quantitative claim to a finite rational certificate. We formalize the complete argument in Lean 4 with mathlib, including the analytic enclosures, the numerical inequality, de-Poissonization, concentration, and transfer to distinct-variable clauses. The formal theorem uses only the standard logical axioms of Lean; no external numerical oracle is assumed.",
   "comments": "Includes a complete Lean 4 formalization and a reproducible rational certificate.",
