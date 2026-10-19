@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "exact_outputs_unchanged": true,
+  "mpfr_bits": 11000,
+  "source_sha256": {
+    "certify_compact.py": "50212cce27daf7b182d5e04d2f54ed02a41f986e515c13a382de21202e02da4a",
+    "certify_quadratic.py": "1f269ede649169a43b46321e5c2af60d77da0c4588fcb66e2ca2abb9dc8a31a3",
+    "fast_exp_v2.py": "615222303ae5231a08479bc2550bfa732727ce4e1dfaab8df55d5f4e5c6ac96e",
+    "crosscheck.cpp": "93cf56c7a5d9f403e42fcae3482ee0b98b399fe5a611d98d729d895a95a40da1",
+    "arithmetic.py": "76007ebee94029299976f26bed8b38ec6a0530db6f7cee27ccfb8ca15027c569"
+  }
+}

@@ -1,0 +1,50 @@
+name: Verify 4.266785 theorem
+on:
+  push:
+    paths: ['bound-4266785/**', '.github/workflows/verify-4266785.yml']
+  pull_request:
+    paths: ['bound-4266785/**', '.github/workflows/verify-4266785.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    defaults:
+      run:
+        working-directory: bound-4266785
+    env:
+      SAT_BUILD_WORKERS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install elan and MPFR
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o /tmp/elan-init.sh
+          sh /tmp/elan-init.sh -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+          sudo apt-get update && sudo apt-get install -y libmpfr-dev libgmp-dev
+      - name: Fetch pinned mathlib cache
+        run: sh lean/run.sh exe cache get
+      - name: Kernel-check and audit the complete theorem
+        run: python3 lean/verify.py
+      - name: Exercise the audit gate
+        run: python3 lean/test_verify.py
+      - name: Reproduce compact independent certificate
+        run: python3 certificate/certify_polynomial.py
+      - name: Cross-check the manuscript Taylor calculation
+        run: python3 certificate/certify_compact.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-4266785
+          path: |
+            bound-4266785/results/lean-verification.json
+            bound-4266785/results/axiom-audit.txt
+            bound-4266785/results/build-status.json
+            bound-4266785/results/*.log
+            bound-4266785/certificate/*certificate.json
+            bound-4266785/certificate/mpfr-crosscheck.json

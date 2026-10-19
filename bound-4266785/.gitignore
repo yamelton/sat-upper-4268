@@ -1,0 +1,10 @@
+/.tools/
+/lean/.lake/
+/lean/build/
+/lean/AxiomAudit.lean
+__pycache__/
+*.pyc
+/certificate/crosscheck
+/results/*.log
+/results/build-cache.json
+/results/build-status.json

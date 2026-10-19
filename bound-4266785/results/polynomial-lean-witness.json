@@ -1,0 +1,13 @@
+{
+  "status": "Untrusted witness; complete Lean verification pending",
+  "T": 192,
+  "H": 512,
+  "moment_bits": 1200,
+  "exp_bits": 900,
+  "upper": "-711954580246485/1208925819614629174706176",
+  "upper_decimal": -5.889150257982212e-10,
+  "elapsed_seconds": 0.8372998340000001,
+  "data_bytes": 1221598,
+  "data_sha256": "b7a4da62d08ca1b517b4fabfb877a537dbfb08d488800a42e4f4ed97f161c0de",
+  "generator_sha256": "8047a5ad39f09a1c5879ec7b021d723d2bc4e6e45457abc5a5d9bc2a7f207167"
+}
