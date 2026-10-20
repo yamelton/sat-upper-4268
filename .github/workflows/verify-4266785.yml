@@ -29,6 +29,8 @@ jobs:
           sudo apt-get update && sudo apt-get install -y libmpfr-dev libgmp-dev
       - name: Fetch pinned mathlib cache
         run: sh lean/run.sh exe cache get
+      - name: Test certificate serialization
+        run: python3 certificate/test_certify_quadratic.py
       - name: Kernel-check and audit the complete theorem
         run: python3 lean/verify.py
       - name: Exercise the audit gate

@@ -25,7 +25,7 @@ The compact certificate uses 192 site moments and a polynomial logarithm
 minorant. Independent rational and 420-digit Decimal calculations agree;
 they are cross-checks, not premises of the theorem.
 
-The [v2.0.0 release](https://github.com/yamelton/sat-upper-4268/releases/tag/v2.0.0)
+The [v2.0.1 release](https://github.com/yamelton/sat-upper-4268/releases/tag/v2.0.1)
 contains the software-only source archive. The manuscript revision will
 be published separately.
 

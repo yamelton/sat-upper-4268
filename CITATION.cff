@@ -6,10 +6,10 @@ authors:
   - family-names: Vorobyev
     given-names: Fedor
     email: fedorvorobev@gmail.com
-version: 2.0.0
+version: 2.0.1
 license: Apache-2.0
 repository-code: "https://github.com/yamelton/sat-upper-4268"
-url: "https://github.com/yamelton/sat-upper-4268/releases/tag/v2.0.0"
+url: "https://github.com/yamelton/sat-upper-4268/releases/tag/v2.0.1"
 keywords:
   - random 3-SAT
   - probability

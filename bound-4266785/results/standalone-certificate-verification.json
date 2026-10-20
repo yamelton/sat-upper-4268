@@ -2,11 +2,15 @@
   "passed": true,
   "exact_outputs_unchanged": true,
   "mpfr_bits": 11000,
+  "python": "3.13.7",
+  "startup_integer_digit_limit": 4300,
+  "regression_test_passed": true,
   "source_sha256": {
     "certify_compact.py": "50212cce27daf7b182d5e04d2f54ed02a41f986e515c13a382de21202e02da4a",
-    "certify_quadratic.py": "1f269ede649169a43b46321e5c2af60d77da0c4588fcb66e2ca2abb9dc8a31a3",
+    "certify_quadratic.py": "de922f9d5277b4c13fb41c2175deb1c3e8a4801e8f7a2b2c66e62e88642ec700",
     "fast_exp_v2.py": "615222303ae5231a08479bc2550bfa732727ce4e1dfaab8df55d5f4e5c6ac96e",
     "crosscheck.cpp": "93cf56c7a5d9f403e42fcae3482ee0b98b399fe5a611d98d729d895a95a40da1",
-    "arithmetic.py": "76007ebee94029299976f26bed8b38ec6a0530db6f7cee27ccfb8ca15027c569"
+    "arithmetic.py": "76007ebee94029299976f26bed8b38ec6a0530db6f7cee27ccfb8ca15027c569",
+    "test_certify_quadratic.py": "8769120c022cf086f34168310f8fbd8bf7af369666df36c7c666a528b8608bc5"
   }
 }

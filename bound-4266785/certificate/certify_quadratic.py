@@ -12,6 +12,10 @@ from pathlib import Path
 from fractions import Fraction as F
 from decimal import Decimal as D,localcontext
 import sys,math,json,time,hashlib,argparse
+# Exact tail certificates exceed Python 3.11+'s default decimal digit limit.
+# These integers are computed locally, rather than accepted as external input.
+if hasattr(sys, 'set_int_max_str_digits'):
+ sys.set_int_max_str_digits(0)
 ROOT=Path(__file__).resolve().parent
 sys.path.insert(0,str(ROOT))
 import arithmetic as lib
